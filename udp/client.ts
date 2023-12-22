@@ -18,7 +18,10 @@ client.on("error", (err) => {
   client.close();
 });
 
-client.on("message", (msg, rinfo) => {
+client.on("message", (msg: string, rinfo) => {
+  if (msg.split(" ")[0] === "DISCONNECTION") {
+    throw new Error();
+  }
   console.log(`client got: ${msg} from ${rinfo.address}:${rinfo.port}`);
 });
 

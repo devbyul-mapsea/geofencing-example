@@ -28,7 +28,7 @@ server.on("message", (msg, rinfo) => {
     clients.push({ ...rinfo, reciveTime: new Date() });
   }
 
-  console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+  // console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
 });
 
 server.on("listening", () => {
@@ -66,6 +66,7 @@ const PORT = 40000; // The port the server is broadcasting to
 const HOST = "0.0.0.0"; // Bind to all interfaces
 server.bind(PORT, HOST);
 // Prints: server listening 0.0.0.0:41234
+
 setInterval(() => {
   const raw_data = fs.readFileSync("./raw_datas/nmea-sample");
   const utf_data = raw_data.toString("utf-8");
@@ -78,3 +79,18 @@ setInterval(() => {
     aisDecoder.write(value);
   });
 });
+
+setInterval(() => {
+  const now = new Date();
+  clients.forEach((value, i) => {
+    const { address, port, reciveTime } = value;
+
+    const diffMSec = now.getTime() - reciveTime.getTime();
+    const diffMin = diffMSec / (60 * 1000);
+
+    if (diffMSec >= 10) {
+      clients.splice(i - 1, 1);
+      console.log(`DISCONNECTION ${address}:${port}`);
+    }
+  });
+}, 1000);
