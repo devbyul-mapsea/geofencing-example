@@ -26,6 +26,7 @@ server.on("message", (msg, rinfo) => {
 
   if (!clientExists) {
     clients.push({ ...rinfo, reciveTime: new Date() });
+    console.log(`CONNECTION ${rinfo.address}:${rinfo.port}`);
   }
 
   // console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
@@ -43,9 +44,10 @@ const broadcastMessage = (message: Buffer) => {
     const errorCallBack = (error: Error | null, bytes: number): void => {
       if (error) {
         console.error(error);
-      } else {
-        console.log(`Message sent to ${client.address}:${client.port}`);
       }
+      // else {
+      //   console.log(`Message sent to ${client.address}:${client.port}`);
+      // }
     };
 
     server.send(message, port, address, errorCallBack);
@@ -72,12 +74,14 @@ setInterval(() => {
   const utf_data = raw_data.toString("utf-8");
   const split_data = utf_data.split("\r\n");
 
+  console.time();
   split_data.forEach((value, index) => {
     if (index === split_data.length - 1) {
       return;
     }
     aisDecoder.write(value);
   });
+  console.timeEnd();
 });
 
 setInterval(() => {
@@ -88,7 +92,8 @@ setInterval(() => {
     const diffMSec = now.getTime() - reciveTime.getTime();
     const diffMin = diffMSec / (60 * 1000);
 
-    if (diffMSec >= 10) {
+    // Disconnection Time Limit 2M
+    if (diffMin >= 2) {
       clients.splice(i - 1, 1);
       console.log(`DISCONNECTION ${address}:${port}`);
     }
