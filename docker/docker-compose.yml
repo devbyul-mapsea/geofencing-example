@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  postgis:
+    container_name: postgis
+    build:
+      context: ./postgis
+      dockerfile: Dockerfile
+    ports:
+      - 5432:5432
+
+  geoserver:
+    container_name: geoserver
+    build:
+      context: ./geoserver
+      dockerfile: Dockerfile
+    ports:
+      - 18080:8080
